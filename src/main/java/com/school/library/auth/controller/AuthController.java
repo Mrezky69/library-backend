@@ -12,6 +12,7 @@ import com.school.library.auth.dto.AuthResponseDTO;
 import com.school.library.auth.dto.ChangePasswordDTO;
 import com.school.library.auth.dto.LoginRequestDTO;
 import com.school.library.auth.dto.RefreshTokenDTO;
+import com.school.library.auth.dto.RegisterRequestDTO;
 import com.school.library.auth.service.AuthService;
 
 import jakarta.validation.Valid;
@@ -29,6 +30,12 @@ public class AuthController {
         return ResponseEntity.ok(authService.login(request));
     }
 
+    @PostMapping("/register")
+    public void login(@RequestBody RegisterRequestDTO request) {
+        authService.register(request);
+    }
+
+
     @PostMapping("/refresh")
     public ResponseEntity<RefreshTokenDTO> refresh(@Valid @RequestBody RefreshTokenDTO request) {
         return ResponseEntity.ok(authService.refreshToken(request));
@@ -40,4 +47,5 @@ public class AuthController {
         authService.changePassword(req);
         return ResponseEntity.ok().build();
     }    
+
 }

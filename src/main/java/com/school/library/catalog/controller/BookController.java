@@ -2,7 +2,6 @@ package com.school.library.catalog.controller;
 
 import com.school.library.catalog.dto.BookRequestDTO;
 import com.school.library.catalog.dto.BookResponseDTO;
-import com.school.library.catalog.dto.BookDetailResponseDTO;
 import com.school.library.catalog.service.BookService;
 import com.school.library.common.PagedResponse;
 
@@ -28,7 +27,7 @@ public class BookController {
     }
 
     @GetMapping("/{id}")
-    public BookDetailResponseDTO getBookById(@PathVariable Long id) {
+    public BookResponseDTO getBookById(@PathVariable Long id) {
         return bookService.getBookById(id);
     }
 
@@ -36,11 +35,10 @@ public class BookController {
     public PagedResponse<BookResponseDTO> getAllBooks(
         @RequestParam(required = false) String title,
         @RequestParam(required = false) String author,
-        @RequestParam(required = false) String genre,
         @RequestParam(required = false) Integer publicationYear,
-        @PageableDefault(size = 10) Pageable pageable) {
+        @PageableDefault(page = 0, size = 10) Pageable pageable) {
         
-        return bookService.getAllBooks(title, author, genre, publicationYear, pageable);
+        return bookService.getAllBooks(title, author, publicationYear, pageable);
     }
 
     @PutMapping("/{id}")

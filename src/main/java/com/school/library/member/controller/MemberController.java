@@ -31,7 +31,6 @@ public class MemberController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MemberResponseDTO> getById(@PathVariable Long id) {
         return ResponseEntity.ok(memberService.getById(id));
     }

@@ -11,7 +11,6 @@ public class BookResponseDTO {
     private String coverImage;    
     private String title;
     private String author;
-    private String genre;
     private Integer publicationYear;
     private Integer stock;
 }

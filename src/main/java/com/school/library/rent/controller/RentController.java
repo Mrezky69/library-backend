@@ -2,6 +2,8 @@ package com.school.library.rent.controller;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
 import org.springframework.web.bind.annotation.*;
 
 import com.school.library.rent.dto.RentResponseDTO;
@@ -24,4 +26,13 @@ public class RentController {
         return rentService.returnBook(rentId);
     }
 
+    @GetMapping("/history")
+    public List<RentResponseDTO> getRentHistory() {
+        return rentService.getHistoryForCurrentUser();
+    }    
+
+    @PostMapping("/approve/{rentId}")
+    public RentResponseDTO approve(@PathVariable Long rentId) {
+        return rentService.approveRent(rentId);
+    }
 }

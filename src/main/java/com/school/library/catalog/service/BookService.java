@@ -1,16 +1,13 @@
 package com.school.library.catalog.service;
 
-import com.school.library.catalog.dto.BookDetailResponseDTO;
-import com.school.library.catalog.dto.BookItemResponseDTO;
 import com.school.library.catalog.dto.BookRequestDTO;
 import com.school.library.catalog.dto.BookResponseDTO;
 import com.school.library.catalog.model.Book;
-import com.school.library.catalog.model.BookItem;
-import com.school.library.catalog.repository.BookItemRepository;
 import com.school.library.catalog.repository.BookRepository;
 import com.school.library.common.PagedResponse;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -24,40 +21,29 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BookService {
 
     @Autowired
     private BookRepository bookRepository;
 
-    @Autowired
-    private final BookItemRepository bookItemRepository;
-
     @Transactional
-    public void createBook(BookRequestDTO request) {
-        if (bookItemRepository.findByIsbn(request.getIsbn()).isPresent()) {
-            throw new RuntimeException("ISBN already exists");
+    public Book createBook(BookRequestDTO request) {
+        if (bookRepository.findByTitle(request.getTitle()).isPresent()) {
+            throw new RuntimeException("Tittle already exists");
         }
         
-        Book book = bookRepository.findByTitle(request.getTitle())
-                .orElseGet(() -> bookRepository.save(Book.builder()
+        return bookRepository.save(Book.builder()
                         .coverImage(request.getCoverImageBase64())
                         .title(request.getTitle())
                         .author(request.getAuthor())
                         .publicationYear(request.getPublicationYear())
                         .stock(request.getStock())
-                        .build())
-                );
-
-        BookItem bookItem = BookItem.builder()
-                .book(book)
-                .isbn(request.getIsbn())
-                .build();
-
-        bookItemRepository.save(bookItem);
+                        .build());
     }
 
     public PagedResponse<BookResponseDTO> getAllBooks(
-            String title, String author, String genre, 
+            String title, String author, 
             Integer publicationYear, Pageable pageable) {
         
         Specification<Book> spec = Specification.where(null);
@@ -70,11 +56,6 @@ public class BookService {
         if (author != null && !author.isEmpty()) {
             spec = spec.and((root, query, cb) ->
                 cb.like(cb.lower(root.get("author")), "%" + author.toLowerCase() + "%"));
-        }
-
-        if (genre != null && !genre.isEmpty()) {
-            spec = spec.and((root, query, cb) ->
-                cb.equal(cb.lower(root.get("genre")), genre.toLowerCase()));
         }
 
         if (publicationYear != null) {
@@ -106,25 +87,17 @@ public class BookService {
     }
 
 
-    public BookDetailResponseDTO getBookById(Long id) {
+    public BookResponseDTO getBookById(Long id) {
         Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Book not found"));
 
-        List<BookItemResponseDTO> items = bookItemRepository.findAllByBook(book).stream()
-                .map(item -> BookItemResponseDTO.builder()
-                        .id(item.getId())
-                        .isbn(item.getIsbn())
-                        .build())
-                .collect(Collectors.toList());
-
-        return BookDetailResponseDTO.builder()
+        return BookResponseDTO.builder()
                 .id(book.getId())
                 .coverImage(book.getCoverImage())
                 .title(book.getTitle())
                 .author(book.getAuthor())
                 .publicationYear(book.getPublicationYear())
                 .stock(book.getStock())
-                .items(items)
                 .build();
     }
 
@@ -155,8 +128,6 @@ public class BookService {
     public void deleteBook(Long id) {
         Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Book not found"));
-
-        bookItemRepository.deleteAll(bookItemRepository.findAllByBook(book));
         bookRepository.delete(book);
     }
 }

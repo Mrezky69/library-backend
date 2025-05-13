@@ -1,6 +1,6 @@
 package com.school.library.rent.model;
 
-import com.school.library.catalog.model.BookItem;
+import com.school.library.catalog.model.Book;
 import com.school.library.member.model.Member;
 import jakarta.persistence.*;
 import lombok.*;
@@ -23,11 +23,14 @@ public class Rent {
     private Member member;
 
     @ManyToOne
-    @JoinColumn(name = "book_item_id")
-    private BookItem bookItem;
+    @JoinColumn(name = "book_id")
+    private Book book;
 
 
     private LocalDate rentDate;
     private LocalDate dueDate;
     private LocalDate returnDate;
+
+    @Enumerated(EnumType.STRING)
+    private RentStatus status;    
 }
